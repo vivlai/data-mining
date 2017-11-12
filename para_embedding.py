@@ -7,6 +7,8 @@ from sklearn import svm
 import numpy as np
 import scipy.stats as stats
 from sklearn import linear_model
+from sklearn.decomposition import PCA
+import matplotlib.pyplot as plt
 
 
 def content():
@@ -76,3 +78,29 @@ if __name__ == '__main__':
     rho3, p3 = stats.kendalltau(y_test,prediction)
     print(rho1,rho2,rho3)
     #prediction correlation
+    
+    #PCA, project to 2D scatter plots
+    pca = PCA(n_components=2)
+    pca.fit(doc2vec_all)
+    transform_data = pca.transform(doc2vec_all)
+
+    starDict = {}
+    for i in range(1,6):
+        starDict[i] = [[],[]]
+
+    for i in range(5000):
+        rate = allindex[i]
+        point = transform_data[i]
+        starDict[rate][0].append(point[0])
+        starDict[rate][1].append(point[1])
+
+
+    plt.scatter(starDict[1][0],starDict[1][1],color='r',s=2,label = '1')
+    #plt.scatter(starDict[2][0],starDict[2][1],color='b',s=2,label = '2')
+    #plt.scatter(starDict[3][0],starDict[3][1],color='y',s=2,label = '3')
+    #plt.scatter(starDict[4][0],starDict[4][1],color='k',s=2,label = '4')
+    plt.scatter(starDict[5][0],starDict[5][1],color='c',s=2,label = '5')
+    plt.xlabel('X')
+    plt.ylabel('Y')
+    plt.legend(loc='1')
+    plt.show()
