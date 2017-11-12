@@ -3,6 +3,12 @@ import string
 from nltk.corpus import stopwords
 from nltk.tag import pos_tag
 
+'''
+1. change the direction here
+2. the output files are: (1) pre-processed reviews (2) the corresponded star ratings
+3. puncuations, NNPs, digits and stop words are eliminated
+'''
+
 viewData = []
 
 with open("/Users/xinglinzi/Downloads/dataset/Yelp500.json") as json_file:
@@ -35,7 +41,7 @@ f.close()
 
 f = open("./input.txt",'w+')
 for i in reviews:
-    f.write('0 0 ')
+    f.write('')
     for word in i:
         f.write(word+' ')
     f.write("\n")
