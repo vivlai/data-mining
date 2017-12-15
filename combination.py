@@ -9,6 +9,7 @@ import scipy.stats as stats
 from sklearn import linear_model
 from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
+from sklearn.feature_extraction.text import TfidfVectorizer
 
 
 def content():
@@ -31,11 +32,21 @@ def content():
         all_docs.append(LabelDoc(sen.split(),tag))
 
 
-    return all_docs
+    return all_docs, data_list
 
 if __name__ == '__main__':
 
-    all_docs = content()
+    ##########load LDA data###############
+
+    final_vec = []
+    for line in open('/Users/xinglinzi/Downloads/topic_vis/lda/final_vector.txt'):
+        l = line.strip().split(' ')
+        for i in range(len(l)):
+            l[i] = float(l[i])
+        final_vec.append(l)
+
+    ##########call para2vec###############
+    all_docs, doc_list = content()
     model = doc2vec.Doc2Vec(size=100, window=3, alpha=0.025,min_alpha=0.025, min_count=3)
     model.build_vocab(all_docs)
 
@@ -46,31 +57,50 @@ if __name__ == '__main__':
 
     model.save('model.doc2vec')
 
+    ##########build Tf-idf###############
+
+    vectorizer = TfidfVectorizer()
+    X = vectorizer.fit_transform(doc_list)
+    tfidf = X.toarray()
+    #tfidf = list(tfidf)
+    pca = PCA(n_components=100)
+    pca.fit(tfidf)
+    tfidf_pca = pca.transform(tfidf)
+
     doc2vec_all = []
-    for i in range(5000):
-        doc2vec_all.append(model.docvecs[i])
+    for i in range(7000):
+        doc2vec_all.append(list(model.docvecs[i]))
+
+    ##########################
+    mingle = []
+    for i in range(7000):
+        mingle.append(final_vec[i]+list(tfidf_pca[i]))
+
+    ##########################
 
     allindex = []
     for line in open('./docrates.txt'):
         allindex.append(line.strip().split()[0])
 
-    logreg = LogisticRegression(multi_class='ovr')
+    logreg1 = LogisticRegression(multi_class='ovr')
     #logreg = MultinomialNB(alpha=.01)
-    '''
-    logreg = svm.LinearSVC(C=1.0, class_weight=None, dual=True, fit_intercept=True,
+
+    logreg2 = svm.LinearSVC(C=1.0, class_weight=None, dual=True, fit_intercept=True,
         intercept_scaling=1, loss='squared_hinge', max_iter=1000,
         multi_class='ovr', penalty='l2', random_state=None, tol=0.0001,
         verbose=0)
-    '''
-    scores = cross_val_score(logreg, doc2vec_all, allindex, cv=10)
-    #classification accuracy
-    print(np.mean(scores))
 
-    for i in range(5000):
-        doc2vec_all[i] = np.array(doc2vec_all[i]).astype(np.float)
+    scores1 = cross_val_score(logreg1, mingle, allindex, cv=10)
+    scores2 = cross_val_score(logreg2, mingle, allindex, cv=10)
+    #classification accuracy
+    print(np.mean(scores1),np.mean(scores2))
+
+    for i in range(7000):
+        #doc2vec_all[i] = np.array(doc2vec_all[i]).astype(np.float)
+        mingle[i] = np.array(mingle[i]).astype(np.float)
         allindex[i] = float(allindex[i])
     regr = linear_model.LinearRegression()
-    X_train, X_test, y_train, y_test = train_test_split(doc2vec_all, allindex, test_size=0.2, random_state=0)
+    X_train, X_test, y_train, y_test = train_test_split(mingle, allindex, test_size=0.2, random_state=0)
     regr.fit(X_train, y_train)
     prediction = regr.predict(X_test)
     rho1, p1 = stats.pearsonr(y_test,prediction)
@@ -78,17 +108,16 @@ if __name__ == '__main__':
     rho3, p3 = stats.kendalltau(y_test,prediction)
     print(rho1,rho2,rho3)
     #prediction correlation
-    
-    #PCA, project to 2D scatter plots
+
     pca = PCA(n_components=2)
-    pca.fit(doc2vec_all)
-    transform_data = pca.transform(doc2vec_all)
+    pca.fit(mingle)
+    transform_data = pca.transform(mingle)
 
     starDict = {}
     for i in range(1,6):
         starDict[i] = [[],[]]
 
-    for i in range(5000):
+    for i in range(7000):
         rate = allindex[i]
         point = transform_data[i]
         starDict[rate][0].append(point[0])
@@ -104,3 +133,7 @@ if __name__ == '__main__':
     plt.ylabel('Y')
     plt.legend(loc='1')
     plt.show()
+
+
+
+
