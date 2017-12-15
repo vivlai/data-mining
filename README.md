@@ -7,3 +7,5 @@
 3. combination.py: Covering TF-IDF, Paragragh2Vec (Gensim.models.doc2vec) and LDA. This script implements the combination of possible vectors and run the experiements(classification, prediction, clustering).
 
 4. LDA.py: Getting the LDA vector.
+
+5. scratch.ipynb: This notebook is used to run TF-IDF for clustering and classification tasks. It's a scratch book to run different sets of data on same tasks.
