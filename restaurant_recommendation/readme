@@ -1,9 +1,0 @@
-Preprocessing:
-1. select users and their reviews:
-    python preprocess_select_users_reviews.py
-2. make a user-restaurant table:
-    python preprocess_fetch_stars.py
-
-Restaurant recommandation:
-1. recommand based on 'similar' people's preferences 
-    python rest_recommandation_v1.py

@@ -9,3 +9,9 @@
 4. LDA.py: Getting the LDA vector.
 
 5. scratch.ipynb: This notebook is used to run TF-IDF for clustering and classification tasks. It's a scratch book to run different sets of data on same tasks.
+
+6. preprocess_select_users_reviews.py: select users and their reviews
+
+7. preprocess_fetch_stars.py: make a user-restaurant table
+
+8. rest_recommandation_v1.py: recommand based on 'similar' people's preferences 
